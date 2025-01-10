@@ -71,12 +71,13 @@ class Renderer:
         
         
     def drawPieces(self, field : Field):
-        for x in range(0, field.getWidth()):
-            for y in range(0, field.getVisibleHeight()): #iterate thru visible rows
-                if(field.getValue(x,y) != 0):
-                    tile = pygame.Surface((CELL_SIZE, CELL_SIZE))
-                    tile.fill(field.getColor(x,y))
-                    self.board_surface.blit(tile, (x*CELL_SIZE, (y * -1 + field.getVisibleHeight() - 1)*CELL_SIZE))
+        if field is not None:
+            for x in range(0, field.getWidth()):
+                for y in range(0, field.getVisibleHeight()): #iterate thru visible rows
+                    if(field.getValue(x,y) != 0):
+                        tile = pygame.Surface((CELL_SIZE, CELL_SIZE))
+                        tile.fill(field.getColor(x,y))
+                        self.board_surface.blit(tile, (x*CELL_SIZE, (y * -1 + field.getVisibleHeight() - 1)*CELL_SIZE))
         
     #x,y is global coordinate
     def drawFallingPiece(self, x, y, piece : Piece, field : Field):
@@ -115,9 +116,10 @@ class Renderer:
                 
     
     def drawPreview(self, pieceQueue):
-        for i in range(len(pieceQueue)):
-            next_surf = self._render_next(pieceQueue[i])
-            self.preview_surface.blit(next_surf, (CELL_SIZE, (3*i+1)*CELL_SIZE))
+        if pieceQueue is not None:
+            for i in range(len(pieceQueue)):
+                next_surf = self._render_next(pieceQueue[i])
+                self.preview_surface.blit(next_surf, (CELL_SIZE, (3*i+1)*CELL_SIZE))
     
     
     def _render_next(self, type):

@@ -2,6 +2,7 @@ import numpy as np
 from enum import Enum
 from gameComponents.field import Field
 from tetromino_settings import TETROMINO_COLORS
+from window_settings import NTOTAL_ROWS
 """
 Piece.py contains the following:
 
@@ -36,6 +37,7 @@ SHAPES_DEFAULT = {
         [0,0,0,0,0],
         [0,0,0,0,0]]),
     
+
     SHAPE_ID.J : np.array(
         [[2,0,0],
         [2,2,2],
@@ -77,32 +79,38 @@ def getTileCoords(type):
     xcoords = np.zeros(shape=(4,4), dtype=int)
     ycoords = np.zeros(shape=(4,4), dtype=int)
 
-    for i in range(4):
+    for i in range(4): #4 rotations
         xs, ys = getTileCoordsHelper(type, i)
         xcoords[i] = xs
         ycoords[i] = ys
         
     return xcoords, ycoords
 
+
+# def getTileCoordsHelper(type, rt):
+#     shape = ROTATED_SHAPES[type][rt]
+#     # 4 tiles
+#     xs = np.zeros(shape=4, dtype=int)
+#     ys = np.zeros(shape=4, dtype=int)
+    
+#     i = 0
+#     for y in range(len(shape)):
+#         for x in range(len(shape[0])):
+#             if shape[y][x] != 0:
+#                 xs[i] = x
+#                 ys[i] = len(shape) - y - 1
+#                 i += 1
+    
+#     return xs, ys
+
 """
 Returns a list of x coordinates and a list of y coordinates of tiles for rt orientation
 """
 def getTileCoordsHelper(type, rt):
     shape = ROTATED_SHAPES[type][rt]
-    # 4 tiles
-    xs = np.zeros(shape=4, dtype=int)
-    ys = np.zeros(shape=4, dtype=int)
-    
-    i = 0
-    for y in range(len(shape)):
-        for x in range(len(shape[0])):
-            if shape[y][x] != 0:
-                xs[i] = x
-                ys[i] = len(shape) - y - 1
-                i += 1
-    
+    ys, xs = np.nonzero(shape)
+    ys = len(shape) - ys - 1
     return xs, ys
-
 
 
 ROTATED_SHAPES = {shape_id: generate_rotations(shape) for shape_id, shape in SHAPES_DEFAULT.items()}

@@ -7,34 +7,39 @@ from gameEngine import GameEngine
 
 
 class Main:
-    def __init__(self, mode='play'):
+    def __init__(self, mode='play', displayPath=None):
         self.mode = mode
+        self.displayPath = displayPath
     
     
     def run(self):
         if self.mode == 'play':
             self.play()
         elif self.mode == 'display':
-            path = input("Path to predefined boards (json):  ")
-            self.display(path)
+            if self.displayPath is None:
+                self.displayPath = input("Path to predefined boards (json):  ")
+            self.display(self.displayPath)
     
     
     """
     Display predefined sequences of Tetris boards.
     """
     def display(self, path):
+        from gameComponents.piece import SHAPE_ID
         renderer = Renderer()
         extractor = Extractor()
         field = Field()
         extractor.load(path)
+        instances, labels = extractor.extractExamples()
         renderer.reset()
         field.reset()
+        
         
         i = 0
         running = True
         while running:
-            field.board = extractor.getBoard(i)
-            renderer.render_frame(field, None, None, None)
+            field.board = extractor.extendedRaw[i]
+            renderer.render_frame(field, None, None, None, None, None, None)
             
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -45,11 +50,19 @@ class Main:
                     if event.key == pygame.K_LEFT:
                         #get prev board
                         i = max(0,i-1)
+                        print("board index = " + str(i))
+                        print("piece: " + SHAPE_ID(instances[i][1]).name)
+                        print("x, rotation: " + str(labels[i][0]) + ", " + str(labels[i][1]))
+                        print("\n")
 
                         
                     if event.key == pygame.K_RIGHT:
                         #get next board
                         i = min(len(extractor.getAll())-1,i+1)
+                        print("board index = " + str(i))
+                        print("piece: " + SHAPE_ID(instances[i][1]).name)
+                        print("x: " + str(labels[i][0]) + ", rotation: " + str(labels[i][1]))
+                        print("\n")
             
         renderer.close()
     
@@ -84,5 +97,5 @@ class Main:
         
 
 if __name__ == "__main__":
-    main = Main(mode='play')
+    main = Main(mode='display', displayPath="boards/3.json")
     main.run()

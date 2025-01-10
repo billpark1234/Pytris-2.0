@@ -30,7 +30,7 @@ class Test:
         running = True
         while running:
             
-            r.render_frame(f.board, None, None, None)
+            r.render_frame(f, None, None, None)
             
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -43,13 +43,27 @@ class Test:
         
         r.close()
         
+    
+    def extractor_remove_ghost_test(self):
+        from extractor import Extractor
+        e = Extractor()
+        e.load("boards/3.json")
+        b = e.raw[0]
+        print(b)
+        b = e.removeGhost(b)
+        print(b)
+        
+
+
+
         
 # t = Test()
-# t.clearLineTest()
+# t.extractor_remove_ghost_test()
+
 
 import numpy as np
-from gameComponents.piece import *
 
-p = Piece(SHAPE_ID.I)
-a = TILE_COORDINATES_X[0].copy()
-print(a[0])
+arr = np.array([[1,2,11],
+               [1,2,11]])
+
+print(np.where(arr > 10))
