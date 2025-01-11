@@ -60,10 +60,19 @@ class Test:
 # t = Test()
 # t.extractor_remove_ghost_test()
 
-
+from extractor import Extractor
 import numpy as np
+from agents import CNN
+import torch
 
-arr = np.array([[1,2,11],
-               [1,2,11]])
+e = Extractor()
+e.load("boards/2.json")
 
-print(np.where(arr > 10))
+ins, lab = e.extractExamples()
+board = ins[0][0]
+print(board.shape)
+
+boardTensor = torch.tensor(board, dtype=torch.float32).unsqueeze(0)
+pieceTensor = torch.tensor(1, dtype=torch.long).unsqueeze(0).unsqueeze(0)
+print(boardTensor.shape)
+print(pieceTensor.shape)

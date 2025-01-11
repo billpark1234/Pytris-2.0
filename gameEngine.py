@@ -9,6 +9,7 @@ from tetromino_settings import *
 from window_settings import *
 import numpy as np
 
+import torch
 
 debug = False
 
@@ -16,11 +17,12 @@ debug = False
 Spawns and moves the falling tetromino
 """
 class GameEngine:
-    def __init__(self):
+    def __init__(self, agent=None):
         self.field = None
         self.stats = None
         self.renderer = None
         self.ctrl = None
+        self.agent = agent
         
     
     def reset(self):
@@ -204,15 +206,46 @@ class GameEngine:
             
         if softDrop:
             self.drop()
+            
+        if self.agent is not None:
+            board = self.field.getBoard()
+            board[board != 0] = 1
+            boardTensor = torch.tensor(board, dtype=torch.float32).unsqueeze(0).unsqueeze(0)
+            pieceTensor = torch.tensor(self.currentPiece.getType().value, dtype=torch.long).unsqueeze(0).unsqueeze(0).unsqueeze(0)
+            pred = self.agent(boardTensor, pieceTensor) #logits for 48 classes
+            _, pred = torch.max(pred, dim=1)
 
-        if self.ghostEnabled:
+            #decoding softmax result
+            predicted_pos = pred // 4 
+            predicted_rot = pred % 4
+            
+            x = predicted_pos - 2
+            tempPiece = Piece(type=self.currentPiece.getType())
+            tempPiece.orientation = predicted_rot
+            x, y = tempPiece.ghostCoordinates(x, self.pieceY, self.field)
+            
+            prediction = [x, y, predicted_rot]
+            
+                        
             self.renderer.render_frame(self.field, 
                                     self.pieceQueue, 
                                     self.holdPiece, 
                                     self.currentPiece, 
                                     self.pieceX, 
                                     self.pieceY,
-                                    self.currentPiece.ghostCoordinates(self.pieceX, self.pieceY, self.field))
+                                    None,
+                                    prediction)
+            
+        elif self.ghostEnabled:
+            self.renderer.render_frame(self.field, 
+                                    self.pieceQueue, 
+                                    self.holdPiece, 
+                                    self.currentPiece, 
+                                    self.pieceX, 
+                                    self.pieceY,
+                                    self.currentPiece.ghostCoordinates(self.pieceX, self.pieceY, self.field),
+                                    None)
+            
         else:
             self.renderer.render_frame(self.field, 
                         self.pieceQueue, 
@@ -220,6 +253,7 @@ class GameEngine:
                         self.currentPiece, 
                         self.pieceX, 
                         self.pieceY,
+                        None,
                         None)
 
         return gameOver

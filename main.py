@@ -7,9 +7,10 @@ from gameEngine import GameEngine
 
 
 class Main:
-    def __init__(self, mode='play', displayPath=None):
+    def __init__(self, mode='play', displayPath=None, agent=None):
         self.mode = mode
         self.displayPath = displayPath
+        self.agent = agent
     
     
     def run(self):
@@ -52,13 +53,13 @@ class Main:
                         i = max(0,i-1)
                         print("board index = " + str(i))
                         print("piece: " + SHAPE_ID(instances[i][1]).name)
-                        print("x, rotation: " + str(labels[i][0]) + ", " + str(labels[i][1]))
+                        print("x: " + str(labels[i][0]) + ", rotation: " + str(labels[i][1]))
                         print("\n")
 
                         
                     if event.key == pygame.K_RIGHT:
                         #get next board
-                        i = min(len(extractor.getAll())-1,i+1)
+                        i = min(len(instances)-1,i+1)
                         print("board index = " + str(i))
                         print("piece: " + SHAPE_ID(instances[i][1]).name)
                         print("x: " + str(labels[i][0]) + ", rotation: " + str(labels[i][1]))
@@ -70,8 +71,8 @@ class Main:
     """
     Initialize Tetris environment and play by yourself.
     """
-    def play(self):
-        game = GameEngine()
+    def play(self):        
+        game = GameEngine(self.agent)
         game.reset()
         
         running = True
@@ -97,5 +98,12 @@ class Main:
         
 
 if __name__ == "__main__":
-    main = Main(mode='display', displayPath="boards/3.json")
+    from agents import CNN
+    import torch
+    
+    PATH = 'model.pth'
+    net = CNN()
+    net.load_state_dict(torch.load(PATH, weights_only=True))
+    
+    main = Main(mode='play', displayPath="boards/5.json", agent=net)
     main.run()

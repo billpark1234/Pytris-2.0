@@ -70,7 +70,7 @@ SHAPES_DEFAULT = {
 }
 
 def generate_rotations(shape):
-    return [np.rot90(shape, k=i, axes=(1,0)) for i in range(4)]
+    return [np.rot90(shape, k=i, axes=(1,0)) for i in range(4)] #rotate clockwise <=> increment index
 
 
 def getTileCoords(type):

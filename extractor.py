@@ -3,6 +3,11 @@ import numpy as np
 from window_settings import *
 from gameComponents.piece import TILE_COORDINATES_X, TILE_COORDINATES_Y, SHAPE_ID
 
+
+debug = False
+
+
+
 class InferenceFailedException(Exception):
     def __init__(self, board):
         self.board = board
@@ -47,6 +52,8 @@ class Extractor:
             
             for board in self.raw:
                 self.extendedRaw.append(self.extend(board))
+                
+            self.path = path
             
 
     
@@ -55,26 +62,45 @@ class Extractor:
     An instance is an extended board and a piece. Label is the position and orientation of the piece.
     Position of a piece is the global coordinate of the center of the bounding box.
     The coordinate starts as (0,0) for bottom-left
+    
+    x can take values from (-2 .. 9) inclusive
+    rt can take values from (0..3) inclusive
     """
     def extractExamples(self):
         numBoards = len(self.raw)
         instances = []
-        labels = []
-        exampleIndex = 0
+        labels = []        
         
         for i in range(numBoards - 1):
-            currBoardExtended = self.extend(self.truncateTop(self.raw[i]))
-            nextBoardExtended = self.extend(self.truncateTop(self.raw[i+1]))
-            pieceType = self.getPieceTypeValue(self.raw[i])
-            
-            if self.tileCount(currBoardExtended) < self.tileCount(nextBoardExtended):
-                p, x, y, rt = self.inferPieceAttributes(currBoardExtended, nextBoardExtended, False)
-                instances.append((self.removeGhost(currBoardExtended), p))
-                labels.append((x, rt))
-            else: #line clear occurred
-                p, x, y, rt = self.inferPieceAttributes(currBoardExtended, nextBoardExtended, True)
-                instances.append((self.removeGhost(currBoardExtended), p))
-                labels.append((x, rt))
+            try:
+                currBoardExtended = self.extend(self.truncateTop(self.raw[i]))
+                nextBoardExtended = self.extend(self.truncateTop(self.raw[i+1]))
+                
+                if self.tileCount(currBoardExtended) < self.tileCount(nextBoardExtended):
+                    p, x, y, rt = self.inferPieceAttributes(currBoardExtended, nextBoardExtended, False)
+                    board = self.removeGhost(currBoardExtended)
+                
+                    if(debug):
+                        if (x+2) * 4 + rt == 25:
+                            instances.append((board, p))
+                            labels.append((x, rt))
+                    else:
+                        instances.append((board, p))
+                        labels.append((x, rt))
+                else: #line clear occurred
+                    p, x, y, rt = self.inferPieceAttributes(currBoardExtended, nextBoardExtended, True)
+                    board = self.removeGhost(currBoardExtended)
+                    if(debug):
+                        if (x+2) * 4 + rt == 25:
+                            instances.append((board, p))
+                            labels.append((x, rt))
+                    else:
+                        instances.append((board, p))
+                        labels.append((x, rt))
+            except AssertionError as e:
+                print("Warning: Inference Failed with " + self.path + " at board number " + str(i))
+                print("Skipping")
+                continue
 
                 
                 
@@ -101,12 +127,13 @@ class Extractor:
 
             # get the global coordinates of tiles
             ys, xs = np.nonzero(delta)
-            pieceType = delta[ys[0]][xs[0]]
             assert len(ys) == 4 and len(xs) == 4
+            pieceType = delta[ys[0]][xs[0]]
         else:
             ys, xs = np.where(curr > 10)
-            pieceType = curr[ys[0]][xs[0]] - 10 # ghost piece is represented by a value of piece type + 10
             assert len(ys) == 4 and len(xs) == 4
+            pieceType = curr[ys[0]][xs[0]] - 10 # ghost piece is represented by a value of piece type + 10
+            
             
         assert ys is not None
         assert xs is not None
@@ -140,6 +167,12 @@ class Extractor:
                     #offsetting tight global coordinate by bottom left of tile coords to get the proper x,y coordinate compatible with rotation
                     return pieceType, left - min(xdef), bottom - min(ydef), rt
         
+
+    def greyfy(self, board):
+        board = board.copy()
+        board[board != 0] = 1
+        return board
+
 
     """
     Returns a copy of board whose top third rows are replaced with zero-rows

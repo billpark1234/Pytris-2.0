@@ -37,7 +37,7 @@ class Renderer:
     
     Requires that board is a numpy array of shape=(NHIDDEN_ROWS + NROWS, NCOLS)
     """
-    def render_frame(self, field, pieceQueue, holdPiece, piece, x, y, ghostCoordinates):            
+    def render_frame(self, field, pieceQueue, holdPiece, piece, x, y, ghostCoordinates, prediction):            
         assert self.window is not None 
         
         #Render the components on canvas
@@ -48,6 +48,7 @@ class Renderer:
         self.drawPreview(pieceQueue)
         self.drawHold(holdPiece)
         self.drawGhost(piece, ghostCoordinates, field)
+        self.drawPrediction(piece, prediction, field)
         self.blitAll()
         
         
@@ -108,6 +109,19 @@ class Renderer:
             for i in range(4):
                 local_x = piece.tileCoordX[piece.orientation][i]
                 local_y = piece.tileCoordY[piece.orientation][i]
+                
+                tile = pygame.Surface((CELL_SIZE, CELL_SIZE))
+                tile.fill(piece.getColor())
+                tile.set_alpha(128)
+                self.board_surface.blit(tile, ((x + local_x) * CELL_SIZE, ((y + local_y) * -1 + field.getVisibleHeight() - 1)*CELL_SIZE))
+    
+    
+    def drawPrediction(self, piece, prediction, field):
+        if prediction is not None:
+            x, y, rot = prediction
+            for i in range(4):
+                local_x = piece.tileCoordX[rot][i]
+                local_y = piece.tileCoordY[rot][i]
                 
                 tile = pygame.Surface((CELL_SIZE, CELL_SIZE))
                 tile.fill(piece.getColor())
