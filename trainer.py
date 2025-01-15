@@ -9,6 +9,7 @@ from extractor import Extractor
 from agents import CNN, CNN2
 
 
+
 """
 Pipeline
 Stage 1: Extractor extracts instance and label from raw board pictures.
@@ -33,6 +34,7 @@ The position is rescaled back to (-2..9) by subtracting 2.
 
 class TetrisDataset(Dataset):
     def __init__(self, dir, binaryBoard=True):
+
         """
         dir is the directory with all the json files that represent replays.
         """
@@ -96,8 +98,8 @@ train_size = int(0.8 * len(dataset))  # 80% for training
 test_size = len(dataset) - train_size
 trainset, testset = random_split(dataset, [train_size, test_size])
 
-trainloader = DataLoader(trainset, batch_size=3, shuffle=False)
-testloader = DataLoader(testset, batch_size=3, shuffle=False)
+trainloader = DataLoader(trainset, batch_size=3, shuffle=True)
+testloader = DataLoader(testset, batch_size=3, shuffle=True)
 print("Finished loading the dataset. Size: " + str(len(dataset)))
 
 
@@ -134,6 +136,7 @@ net = CNN2()
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 numEpochs = 200
+
 # for epoch in range(numEpochs):  # loop over the dataset multiple times
 
 #     running_loss = 0.0
@@ -201,6 +204,7 @@ plt.show()
 
 PATH = 'model.pth'
 torch.save(net.state_dict(), PATH)
+
 
 net.load_state_dict(torch.load(PATH, weights_only=True))
 

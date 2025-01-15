@@ -122,6 +122,7 @@ class Main:
         
 
 if __name__ == "__main__":
+<<<<<<< HEAD
     from agents import CNN, CNN2
     import torch
     
@@ -130,4 +131,14 @@ if __name__ == "__main__":
     net.load_state_dict(torch.load(PATH, weights_only=True))
     
     main = Main(mode='play', displayPath="boards/19.json", agent=None)
+=======
+    from agents import CNN
+    import torch
+    
+    PATH = 'model.pth'
+    net = CNN()
+    net.load_state_dict(torch.load(PATH, weights_only=True))
+    
+    main = Main(mode='play', displayPath="boards/5.json", agent=net)
+>>>>>>> 3567db9a287fcce55ddb45f811ee415fc8dca37e
     main.run()

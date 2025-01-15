@@ -24,7 +24,7 @@ class GameEngine:
         self.ctrl = None
         self.agent = agent
         self.render_mode = render_mode
-        
+
         self.renderer = Renderer(self.render_mode)
         self.field = Field()
         self.ctrl = Controller()
@@ -272,16 +272,15 @@ class GameEngine:
                                         self.pieceY,
                                         self.currentPiece.ghostCoordinates(self.pieceX, self.pieceY, self.field),
                                         None)
-                
-            else:
-                self.rgb_array = self.renderer.render_frame(self.field, 
-                            self.pieceQueue, 
-                            self.holdPiece, 
-                            self.currentPiece, 
-                            self.pieceX, 
-                            self.pieceY,
-                            None,
-                            None)
+        else:
+            self.rgb_array = self.renderer.render_frame(self.field, 
+                        self.pieceQueue, 
+                        self.holdPiece, 
+                        self.currentPiece, 
+                        self.pieceX, 
+                        self.pieceY,
+                        None,
+                        None)
 
         return gameOver
     

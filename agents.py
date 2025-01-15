@@ -4,6 +4,7 @@ import torch.nn.functional as F
 import torch
 import gymnasium as gym
 
+
 """
 Input : board of shape (batch size, in channel, height, width) = (1, 1, 22, 10) and an integer tensor (batch, 1) = (1, 1)
 Output : tensor of (batch size, 48) = (1, 48)
@@ -69,25 +70,4 @@ class CNN2(nn.Module):
         
         return x
 
-
-
-class RLAgent:
-    def __init__(
-        self,
-        env: gym.Env,
-        learning_rate: float,
-        initial_epsilon: float,
-        epsilon_decay: float,
-        final_epsilon: float,
-        discount_factor: float = 0.95,
-    ):
-        self.env = env
-        
-        self.lr = learning_rate
-        self.discount_factor = discount_factor
-        self.epsilon = initial_epsilon
-        self.epsilon_decay = epsilon_decay
-        self.final_epsilon = final_epsilon
-        self.training_error = []
-        
     

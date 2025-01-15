@@ -67,3 +67,4 @@ import torch
 
 from gameComponents.piece import JLSTZ_OFFSET_DATA
 print(len(JLSTZ_OFFSET_DATA))
+
