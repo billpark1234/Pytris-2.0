@@ -60,10 +60,10 @@ class Test:
 # t = Test()
 # t.extractor_remove_ghost_test()
 
-
+from extractor import Extractor
 import numpy as np
+from agents import CNN
+import torch
 
-arr = np.array([[1,2,11],
-               [1,2,11]])
-
-print(np.where(arr > 10))
+from gameComponents.piece import JLSTZ_OFFSET_DATA
+print(len(JLSTZ_OFFSET_DATA))

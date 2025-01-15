@@ -9,6 +9,7 @@ from tetromino_settings import *
 from window_settings import *
 import numpy as np
 
+import torch
 
 debug = False
 
@@ -16,21 +17,24 @@ debug = False
 Spawns and moves the falling tetromino
 """
 class GameEngine:
-    def __init__(self):
+    def __init__(self, render_mode, agent=None):
         self.field = None
         self.stats = None
         self.renderer = None
         self.ctrl = None
+        self.agent = agent
+        self.render_mode = render_mode
         
-    
-    def reset(self):
-        self.renderer = Renderer()
+        self.renderer = Renderer(self.render_mode)
         self.field = Field()
         self.ctrl = Controller()
+        
+    def reset(self):
         self.field.reset()
         self.ctrl.reset()
         self.renderer.reset()
         
+        self.gameOver = False
         
         self.gen = self.pieceGen()
         self.pieceQueue = deque()
@@ -43,7 +47,7 @@ class GameEngine:
         self.holdPiece = None
         self.holdAllowed = True
         self.dasCount = 0        
-        self.ghostEnabled = True
+        self.ghostEnabled = self.render_mode == 'human'
 
         
         if debug:
@@ -59,6 +63,16 @@ class GameEngine:
             self.pieceQueue.append(SHAPE_ID.T)
 
             self.field.setupPredefinedBoard()
+            
+        if self.render_mode == "rgb_array":
+            self.rgb_array = self.renderer.render_frame(self.field, 
+                                                        self.pieceQueue, 
+                                                        self.holdPiece, 
+                                                        self.currentPiece, 
+                                                        self.pieceX, 
+                                                        self.pieceY, 
+                                                        None, 
+                                                        None)
         
     
     def pieceGen(self):
@@ -70,6 +84,9 @@ class GameEngine:
 
 
     def update(self):
+        if self.gameOver:
+            return
+        
         self.ctrl.updateTime()
         
         ## Each logic sets these boolean variables, which are evaluated later using priorities
@@ -113,7 +130,7 @@ class GameEngine:
         if self.ctrl.isPush(K_z):
             rotate = True
             rotateDirection = -1
-        if self.ctrl.isPush(K_x):
+        elif self.ctrl.isPush(K_x):
             rotate = True
             rotateDirection = 1
             
@@ -165,7 +182,6 @@ class GameEngine:
         
         if lock:
             if self.currentPiece.checkCollision(self.pieceX, self.pieceY, self.field):
-                print("game over")
                 gameOver = True
                 move = False
                 hardDrop = False
@@ -186,8 +202,16 @@ class GameEngine:
                 
         
         if gameOver:
-            self.finishGame()
-            return gameOver
+            self.freeze()
+            self.gameOver = True
+            move = False
+            rotate = False
+            hardDrop = False
+            softDrop = False
+            naturalDrop = False
+            hold = False
+            lock = False
+
                 
                 
         if rotate:
@@ -204,23 +228,60 @@ class GameEngine:
             
         if softDrop:
             self.drop()
+            
+        
+        ## Rendering --------------------------------
+        # Important: self.rgb_array is modified only when ghost and agent are disabled
+                    
+        if self.render_mode == 'human':
+            if self.agent is not None:
+                board = self.field.getBoard()
+                board[board != 0] = 1
+                boardTensor = torch.tensor(board, dtype=torch.float32).unsqueeze(0).unsqueeze(0)
+                pieceTensor = torch.tensor(self.currentPiece.getType().value, dtype=torch.long).unsqueeze(0).unsqueeze(0).unsqueeze(0)
+                pred = self.agent(boardTensor, pieceTensor) #logits for 48 classes
+                _, pred = torch.max(pred, dim=1)
 
-        if self.ghostEnabled:
-            self.renderer.render_frame(self.field, 
-                                    self.pieceQueue, 
-                                    self.holdPiece, 
-                                    self.currentPiece, 
-                                    self.pieceX, 
-                                    self.pieceY,
-                                    self.currentPiece.ghostCoordinates(self.pieceX, self.pieceY, self.field))
-        else:
-            self.renderer.render_frame(self.field, 
-                        self.pieceQueue, 
-                        self.holdPiece, 
-                        self.currentPiece, 
-                        self.pieceX, 
-                        self.pieceY,
-                        None)
+                #decoding softmax result
+                predicted_pos = pred // 4 
+                predicted_rot = pred % 4
+                
+                x = predicted_pos - 2
+                tempPiece = Piece(type=self.currentPiece.getType())
+                tempPiece.orientation = predicted_rot
+                x, y = tempPiece.ghostCoordinates(x, self.pieceY, self.field)
+                
+                prediction = [x, y, predicted_rot]
+                
+                            
+                self.renderer.render_frame(self.field, 
+                                        self.pieceQueue, 
+                                        self.holdPiece, 
+                                        self.currentPiece, 
+                                        self.pieceX, 
+                                        self.pieceY,
+                                        None,
+                                        prediction)
+                
+            elif self.ghostEnabled:
+                self.renderer.render_frame(self.field, 
+                                        self.pieceQueue, 
+                                        self.holdPiece, 
+                                        self.currentPiece, 
+                                        self.pieceX, 
+                                        self.pieceY,
+                                        self.currentPiece.ghostCoordinates(self.pieceX, self.pieceY, self.field),
+                                        None)
+                
+            else:
+                self.rgb_array = self.renderer.render_frame(self.field, 
+                            self.pieceQueue, 
+                            self.holdPiece, 
+                            self.currentPiece, 
+                            self.pieceX, 
+                            self.pieceY,
+                            None,
+                            None)
 
         return gameOver
     
@@ -308,9 +369,9 @@ class GameEngine:
             self.pieceY -= 1
             
             
-    def finishGame(self):
+    def freeze(self):
         self.field.greyfyBoard()
-        self.renderer.render_frame(self.field, self.pieceQueue, self.holdPiece, None, None, None, None)
+        self.renderer.render_frame(self.field, self.pieceQueue, self.holdPiece, None, None, None, None, None)
 
     
     def close(self):
@@ -325,6 +386,8 @@ class GameEngine:
         self.currentPieceRotationCount = 0
         
         self.holdPiece = None
+        self.pieceQueue = None
+        self.agent = None
         
         self.dasCount = 0
         self.dasDirection = 0
@@ -335,5 +398,27 @@ class GameEngine:
         self.hardDropTimer = 0
         
         self.ghost = False
+    
+    
+    
+    def get_obs(self):
+        if self.render_mode == "human":
+            obs = {}
+            obs["piece"] = self.currentPiece.getType().value
+            obs["coordinate"] = np.array([self.pieceX, self.pieceY])
+            obs["orientation"] = self.currentPiece.getOrientation()
+            obs["field"] = self.field.getBoard()
+        elif self.render_mode == 'field_array':
+            obs = self.field.getBoard()
+            
+        reward = 0
         
+        terminated = self.gameOver
+        
+        truncated = False
+        
+        info = {}
+        
+        return obs, reward, terminated, truncated, info
+
         

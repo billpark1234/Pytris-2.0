@@ -95,10 +95,7 @@ class Field:
         
     
     def greyfyBoard(self):
-        for y in range(self.board.shape[0]):
-            for x in range(self.board.shape[1]):
-                if self.board[y][x] != 0:
-                    self.board[y][x] = Field.WALL_VALUE
+        self.board[self.board != 0] = Field.WALL_VALUE
         
     
     def getValue(self, x, y):
@@ -124,7 +121,7 @@ class Field:
     
     def getWidth(self):
         return self.board.shape[1]
-    
+
     
     def getHeight(self):
         return self.board.shape[0]

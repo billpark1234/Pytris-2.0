@@ -61,6 +61,11 @@ class Controller:
     
     def getButtonTime(self, btn):
         return self.buttonTime[self.key_mapping[btn]]
+    
+    
+    def copyPressedFrom(self, actions):
+        assert isinstance(actions, np.ndarray)
+        self.pressed = actions
         
         
     def updateTime(self):

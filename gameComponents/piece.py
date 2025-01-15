@@ -70,7 +70,7 @@ SHAPES_DEFAULT = {
 }
 
 def generate_rotations(shape):
-    return [np.rot90(shape, k=i, axes=(1,0)) for i in range(4)]
+    return [np.rot90(shape, k=i, axes=(1,0)) for i in range(4)] #rotate clockwise <=> increment index
 
 
 def getTileCoords(type):
@@ -227,7 +227,7 @@ class Piece:
         nextOrientation = self._mod(currOrientation + dir, 4)
         self.orientation = nextOrientation
         
-        for i in range(5):
+        for i in range(len(self.offsets)):
             currOffsets = self.offsets[i][currOrientation]
             nextOffsets = self.offsets[i][nextOrientation]
             offsetDelta = currOffsets - nextOffsets
@@ -287,6 +287,9 @@ class Piece:
     def getType(self):
         return self.type
     
+    
+    def getOrientation(self):
+        return self.orientation
     
     def ghostCoordinates(self, x, y, field: Field):
         while not self.checkCollision(x, y - 1, field):
