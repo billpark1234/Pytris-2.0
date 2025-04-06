@@ -10,3 +10,6 @@ for efficient block placement. I am not sure whether a proper reward function wi
 
 An imporovment might be possible by not converting the boards into 0-1 arrays. Tetrominoes are often used in combination to form rectangles without bumps,
 and such information is lost when the blocks are converted to 0s and 1s.
+<img width="460" alt="training_loss" src="https://github.com/user-attachments/assets/b5a96eb8-bfec-4df6-950e-8a0cc6904558" />
+<img width="509" alt="example2" src="https://github.com/user-attachments/assets/2b93162d-7205-46cc-ae18-19d477d130e8" />
+<img width="505" alt="example1" src="https://github.com/user-attachments/assets/767bc4d3-4e0b-4ca1-8686-baf70b16b631" />
