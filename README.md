@@ -1,4 +1,3 @@
-# Tetris AI: Learning from Jstris Replays
 
 This project aims to develop an AI agent that can suggest a good placement of tetrominoes by training on replays from top players on [Jstris](https://jstris.jezevec10.com/).
 
