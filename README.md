@@ -10,7 +10,7 @@ A convolutional neural network was trained using approximately **6,000 examples*
 ### Results
 
 - Trained for **150 epochs**
-- Achieved **~45% accuracy** on the test set
+- Achieved **~54% accuracy** on the test set
 - Significant **overfitting**
 - Poor **sample efficiency**
 
