@@ -16,9 +16,7 @@ A convolutional neural network was trained using approximately **6,000 examples*
 
 The training results indicate that the model memorizes rather than generalizes. One key limitation is the use of **binary (0/1) board representations**, which discards structural information — such as tetromino combinations that form flat surfaces — potentially harming the model’s ability to recognize important spatial patterns.
 
-<p align="center">
-  <img width="460" alt="Training Loss" src="https://github.com/user-attachments/assets/b5a96eb8-bfec-4df6-950e-8a0cc6904558" />
-</p>
+<p align="center"><img width="464" alt="losses" src="https://github.com/user-attachments/assets/b99849f1-1dde-4397-adb1-30c7248fe603" />
 
 ---
 
