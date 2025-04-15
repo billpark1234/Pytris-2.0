@@ -7,7 +7,7 @@ from torch.utils.data import Dataset, DataLoader
 from torch.utils.data import DataLoader, random_split
 from extractor import Extractor
 from agents import CNN, CNN2
-
+import numpy as np
 
 
 """
@@ -91,110 +91,65 @@ class TetrisDataset(Dataset):
         return board
 
 
+net = CNN()
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+numEpochs = 50
+batch_size = 3
+
 
 print("Loading the dataset..")
 dataset = TetrisDataset("boards", True)
-train_size = int(0.8 * len(dataset))  # 80% for training
-test_size = len(dataset) - train_size
-trainset, testset = random_split(dataset, [train_size, test_size])
+train_size = int(0.6 * len(dataset))
+validation_size = int(0.3 * len(dataset))
+test_size = len(dataset) - train_size - validation_size
+trainset, validationset, testset = random_split(dataset, [train_size, validation_size, test_size])
 
-trainloader = DataLoader(trainset, batch_size=3, shuffle=True)
-testloader = DataLoader(testset, batch_size=3, shuffle=True)
-print("Finished loading the dataset. Size: " + str(len(dataset)))
-
-
-## Dimension checks
-# dataiter = iter(trainloader)
-# sample = next(dataiter)
-# board = sample[0]
-# piece = sample[1]
-# label = sample[2]
-
-# print(label)
-# conv1 = nn.Conv2d(1, 4, 4)
-# pool1 = nn.MaxPool2d(2,2)
-# embedding = nn.Embedding(7, 5)
-
-# print(piece.shape)
-# piece = embedding(piece)
-# print(piece.shape)
-# piece = torch.flatten(piece, 1)
-# print(piece.shape)
-
-# print(board.shape)
-# board = pool1(F.relu(conv1(board)))
-# print(board.shape)
-# board = torch.flatten(board, 1)
-# print(board.shape)
-
-# comb = torch.cat((board, piece), dim=1)
-# print(comb.shape)
+trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True)
+validationLoader = DataLoader(validationset, batch_size=batch_size, shuffle=True)
+testloader = DataLoader(testset, batch_size=batch_size, shuffle=True)
+print("Finished loading the dataset.")
+print(f"Trainset size: {len(trainset)}")
+print(f"Validation set size: {len(validationset)}")
+print(f"Test set size: {len(testset)}")
 
 
-
-net = CNN2()
-criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
-numEpochs = 200
-
-# for epoch in range(numEpochs):  # loop over the dataset multiple times
-
-#     running_loss = 0.0
-#     for i, data in enumerate(trainloader, 0):
-#         # get the inputs; data is a list of [inputs, labels]
-#         board, piece, labels = data
-
-#         # zero the parameter gradients
-#         optimizer.zero_grad()
-
-#         # forward + backward + optimize
-#         outputs = net(board, piece)
-#         loss = criterion(outputs, labels)
-#         loss.backward()
-#         optimizer.step()
-
-#         # print statistics
-#         running_loss += loss.item()
-#         if i % 100 == 99:    # print every 2000 mini-batches
-#             print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 2000:.3f}')
-#             running_loss = 0.0
-    
-
-# print('Finished Training')
-
-epoch_loss = []
+train_loss = []
+validation_loss = []
 
 for epoch in range(numEpochs):  # loop over the dataset multiple times
-
-    running_loss = 0.0
+    running_loss = []
+    net.train()
     for i, data in enumerate(trainloader, 0):
-        # get the inputs; data is a list of [inputs, labels]
         board, piece, labels = data
-
-        # zero the parameter gradients
         optimizer.zero_grad()
-
-        # forward + backward + optimize
         outputs = net(board, piece)
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
+        running_loss.append(loss.item())
 
-        # accumulate loss
-        running_loss += loss.item()
+    avg_loss = np.array(running_loss).mean()
+    train_loss.append(avg_loss)
 
-    # Calculate average loss for the epoch and store it
-    avg_loss = running_loss / len(trainloader)
-    epoch_loss.append(avg_loss)
+    validation_running_loss = []
+    net.eval()
+    for i, data in enumerate(validationLoader, 0):
+        board, piece, labels = data
+        outputs = net(board, piece)
+        loss = criterion(outputs, labels)
+        validation_running_loss.append(loss.item())
+    validation_loss.append(np.array(validation_running_loss).mean())
 
-    print(f'Epoch {epoch + 1}, Loss: {avg_loss:.3f}')
+    print(f'Epoch {epoch + 1}, train: {train_loss[-1]:.3f}, validation: {validation_loss[-1]:.3f}')
 
 print('Finished Training')
 
 # Plot the running loss
 import matplotlib.pyplot as plt
 
-plt.plot(range(1, numEpochs + 1), epoch_loss, label='Running Loss')
+plt.plot(range(1, numEpochs + 1), train_loss, label='train loss')
+plt.plot(range(1, numEpochs + 1), validation_loss, label='validation loss')
 plt.xlabel('Epoch')
 plt.ylabel('Loss')
 plt.title('Running Loss vs. Epochs')
@@ -202,21 +157,18 @@ plt.legend()
 plt.show()
 
 
-PATH = 'model.pth'
+
+## Save and evaluate performance on the test set
+PATH = 'model2.pth'
 torch.save(net.state_dict(), PATH)
-
-
 net.load_state_dict(torch.load(PATH, weights_only=True))
 
 correct = 0
 total = 0
-# since we're not training, we don't need to calculate the gradients for our outputs
 with torch.no_grad():
     for data in testloader:
         board, piece, labels = data
-        # calculate outputs by running images through the network
         outputs = net(board, piece)
-        # the class with the highest energy is what we choose as prediction
         _, predicted = torch.max(outputs, 1)
         total += labels.size(0)
         correct += (predicted == labels).sum().item()

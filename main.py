@@ -27,7 +27,7 @@ class Main:
     """
     def display(self, path):
         from gameComponents.piece import SHAPE_ID
-        renderer = Renderer()
+        renderer = Renderer(render_mode="human")
         extractor = Extractor()
         field = Field()
         extractor.load(path)
@@ -95,8 +95,8 @@ class Main:
     #     game.close()
         
         
-    def play(self):        
-        game = GameEngine(agent=self.agent, render_mode="human")
+    def play(self):       
+        game = GameEngine(render_mode="human", agent=self.agent)
         game.reset()
         
         running = True
@@ -108,7 +108,6 @@ class Main:
                 
                 if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
                     if event.key == pygame.K_r:
-                        game.close()
                         game.reset()
                     else:
                         game.ctrl.handleEvent(event)
@@ -122,23 +121,12 @@ class Main:
         
 
 if __name__ == "__main__":
-<<<<<<< HEAD
     from agents import CNN, CNN2
     import torch
     
-    PATH = 'model.pth'
+    PATH = 'model2.pth'
     net = CNN2()
     net.load_state_dict(torch.load(PATH, weights_only=True))
     
-    main = Main(mode='play', displayPath="boards/19.json", agent=None)
-=======
-    from agents import CNN
-    import torch
-    
-    PATH = 'model.pth'
-    net = CNN()
-    net.load_state_dict(torch.load(PATH, weights_only=True))
-    
-    main = Main(mode='play', displayPath="boards/5.json", agent=net)
->>>>>>> 3567db9a287fcce55ddb45f811ee415fc8dca37e
+    main = Main(mode='play', displayPath="boards/19.json", agent=net)
     main.run()

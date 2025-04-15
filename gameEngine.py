@@ -17,19 +17,21 @@ debug = False
 Spawns and moves the falling tetromino
 """
 class GameEngine:
-    def __init__(self, render_mode, agent=None):
+    def __init__(self, render_mode=None, agent=None):
         self.field = None
         self.stats = None
         self.renderer = None
         self.ctrl = None
         self.agent = agent
         self.render_mode = render_mode
-
+        
         self.renderer = Renderer(self.render_mode)
         self.field = Field()
         self.ctrl = Controller()
         
+        
     def reset(self):
+        
         self.field.reset()
         self.ctrl.reset()
         self.renderer.reset()
