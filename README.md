@@ -5,16 +5,18 @@ This project aims to develop an AI agent that can suggest a good placement of te
 
 ## Supervised Learning
 
-A convolutional neural network was trained using approximately **6,000 examples** collected from **screenshots of Tetris sprint replays**.
+Sample size: ~6000 examples. 
+Each instance is a tuple (board, piece) where board is a 20x20 matrix and piece is an integer from {1, 2, ..., 7}.
+Label is an integer from {1, ... , 48} which represents a unique combination of position and rotation of the falling piece.
+I designed three neural network architectures: simple MLP, a CNN, and a multihead attention.
+The best performing agent was a simple one layer convolutional neural network.
+
+Loss function: cross-entropy
+Optimizer: Adam
 
 ### Results
-
-- Trained for **150 epochs**
-- Achieved **~54% accuracy** on the test set
-- Significant **overfitting**
-- Poor **sample efficiency**
-
-The training results indicate that the model memorizes rather than generalizes. One key limitation is the use of **binary (0/1) board representations**, which discards structural information — such as tetromino combinations that form flat surfaces — potentially harming the model’s ability to recognize important spatial patterns.
+The dataset was divided into 70% training, 20% validation, and 10% test sets.
+The max number of epoch was 200, but all networks stopped early due to overfitting.
 
 <p align="center"><img width="464" alt="losses" src="https://github.com/user-attachments/assets/b99849f1-1dde-4397-adb1-30c7248fe603" />
 
@@ -33,5 +35,5 @@ The following are screenshots of me playing. The ghost pieces are suggestions th
 ## Ideas for Improvement
 
 - Replace binary board encodings with numbers representing tetrominos. (1-7)
-- Use different neural networks. I used convolutional neural network hoping that it magically captures some patterns in piece placement, but it does not perform as well as expected.
 - Collect more examples or augment them.
+- Make a deeper network.
