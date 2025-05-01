@@ -5,18 +5,18 @@ This project aims to develop an AI agent that can suggest a good placement of te
 
 ## Supervised Learning
 
-Sample size: ~6000 examples. 
-Each instance is a tuple (board, piece) where board is a 20x20 matrix and piece is an integer from {1, 2, ..., 7}.
-Label is an integer from {1, ... , 48} which represents a unique combination of position and rotation of the falling piece.
-I designed three neural network architectures: simple MLP, a CNN, and a multihead attention.
-The best performing agent was a simple one layer convolutional neural network.
+Sample size: ~6000 examples. \
+Each instance is a tuple (board, piece) where board is a 20x20 matrix and piece is an integer from {1, 2, ..., 7}.\
+Label is an integer from {1, ... , 48} which represents a unique combination of position and rotation of the falling piece.\
+I designed three neural network architectures: simple MLP, a CNN, and a multihead attention.\
+The best performing agent was a simple one layer convolutional neural network.\
 
-Loss function: cross-entropy
-Optimizer: Adam with learning rate = 0.001, decay = 0.0001
+Loss function: cross-entropy\
+Optimizer: Adam with learning rate = 0.001, decay = 0.0001\
 
 ### Results
-The dataset was divided into 70% training, 20% validation, and 10% test sets.
-The max number of epoch was 200, but all networks stopped early due to overfitting.
+The dataset was divided into 70% training, 20% validation, and 10% test sets.\
+The max number of epoch was 200, but all networks stopped early due to overfitting.\
 
 <p align="center"><img width="464" alt="losses" src="https://github.com/user-attachments/assets/b99849f1-1dde-4397-adb1-30c7248fe603" />
 
