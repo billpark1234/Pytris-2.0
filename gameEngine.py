@@ -237,11 +237,13 @@ class GameEngine:
                     
         if self.render_mode == 'human':
             if self.agent is not None:
-                board = self.field.getBoard()
-                board[board != 0] = 1
-                boardTensor = torch.tensor(board, dtype=torch.float32).unsqueeze(0).unsqueeze(0)
-                pieceTensor = torch.tensor(self.currentPiece.getType().value, dtype=torch.long).unsqueeze(0).unsqueeze(0).unsqueeze(0)
-                pred = self.agent(boardTensor, pieceTensor) #logits for 48 classes
+                input = self.field.getBoard()
+                input = input[2:22, :]
+                input = np.pad(input, ((0, 0), (5, 5)), 'constant', constant_values=(0, 0))
+                
+                boardTensor = torch.tensor(input, dtype=torch.float32).unsqueeze(0).unsqueeze(0)
+                pieceTensor = torch.tensor(self.currentPiece.getType().value, dtype=torch.long).unsqueeze(0).unsqueeze(0)
+                pred = self.agent(boardTensor, pieceTensor)
                 _, pred = torch.max(pred, dim=1)
 
                 #decoding softmax result

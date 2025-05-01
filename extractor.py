@@ -65,6 +65,9 @@ class Extractor:
     
     x can take values from (-2 .. 9) inclusive
     rt can take values from (0..3) inclusive
+
+    instance: (board, piece)
+    label: (pos, rotation)
     """
     def extractExamples(self):
         numBoards = len(self.raw)
@@ -75,28 +78,33 @@ class Extractor:
             try:
                 currBoardExtended = self.extend(self.truncateTop(self.raw[i]))
                 nextBoardExtended = self.extend(self.truncateTop(self.raw[i+1]))
+
+                board, x, y , rt = None, None, None, None
                 
                 if self.tileCount(currBoardExtended) < self.tileCount(nextBoardExtended):
                     p, x, y, rt = self.inferPieceAttributes(currBoardExtended, nextBoardExtended, False)
                     board = self.removeGhost(currBoardExtended)
-                
-                    if(debug):
-                        if (x+2) * 4 + rt == 25:
-                            instances.append((board, p))
-                            labels.append((x, rt))
-                    else:
-                        instances.append((board, p))
-                        labels.append((x, rt))
+
                 else: #line clear occurred
                     p, x, y, rt = self.inferPieceAttributes(currBoardExtended, nextBoardExtended, True)
                     board = self.removeGhost(currBoardExtended)
-                    if(debug):
-                        if (x+2) * 4 + rt == 25:
-                            instances.append((board, p))
-                            labels.append((x, rt))
-                    else:
-                        instances.append((board, p))
-                        labels.append((x, rt))
+    
+
+                assert board is not None
+                assert x is not None
+                assert y is not None
+                assert rt is not None
+                assert p is not None
+
+                #make board (20,20) from (22, 10)
+                board = board[2:22, :]
+                #pad board to (20, 20) by padding 5 cols on right and left
+                board = np.pad(board, ((0, 0), (5, 5)), 'constant', constant_values=(0, 0))
+
+                instances.append((board, p))
+                labels.append((x, rt))
+
+
             except AssertionError as e:
                 print("Warning: Inference Failed with " + self.path + " at board number " + str(i))
                 print("Skipping")

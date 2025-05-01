@@ -121,11 +121,16 @@ class Main:
         
 
 if __name__ == "__main__":
-    from agents import CNN, CNN2
+    from agents import CNN, CNN2, VisionTransformer
     import torch
     
-    PATH = 'model2.pth'
-    net = CNN2()
+    PATH = 'model.pth'
+    num_layers = 8
+    emb_size = 32
+    num_head = 4
+    num_class= 48
+    patch_size=2
+    net = VisionTransformer(num_layers=num_layers, img_size=20, emb_size=emb_size, patch_size=patch_size, num_head=num_head, num_class=num_class)
     net.load_state_dict(torch.load(PATH, weights_only=True))
     
     main = Main(mode='play', displayPath="boards/19.json", agent=net)
