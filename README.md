@@ -12,7 +12,7 @@ I designed three neural network architectures: simple MLP, a CNN, and a multihea
 The best performing agent was a simple one layer convolutional neural network.
 
 Loss function: cross-entropy
-Optimizer: Adam
+Optimizer: Adam with learning rate = 0.001, decay = 0.0001
 
 ### Results
 The dataset was divided into 70% training, 20% validation, and 10% test sets.
