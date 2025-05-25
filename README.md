@@ -4,27 +4,22 @@ This project aims to develop an AI agent that can suggest a good placement of te
 ---
 
 ## Setup
-Sample size: ~7000
-Inputs: 20 x 12 tetris board where each cell is a one hot vector of dimension 8 (i.e, 8x20x12 tensor). Also, a one hot vector that represents current falling tetromino.
-Output: Logits for position (0-11). Logits for rotation (0-3)
-Loss function: sum of cross entropy loss on two outputs.
-Model: Vision Transformer (from "image is worth 16 x 16" paper) with some tweaks
-
+Sample size: ~7000 \
+Inputs: 20 x 12 tetris board where each cell is a one hot vector of dimension 8 (i.e, 8x20x12 tensor). Also, a one hot vector that represents current falling tetromino. \
+Output: Logits for position (0-11). Logits for rotation (0-3) \
+Loss function: sum of cross entropy loss on two outputs. \
+Model: Vision Transformer (from "image is worth 16 x 16" paper) with some tweaks \
+The dataset was divided into 70% training, 20% validation, and 10% test sets.\
 
 ## Model Specification
-![Transformer drawio(1)](https://github.com/user-attachments/assets/3b7b00aa-9bf0-4d06-a44c-17c71e75fa4d)
-
-
-## Training configuration
-200 epochs
-0.1 dropout
-32 batch size
+![Transformer drawio(1)](https://github.com/user-attachments/assets/3b7b00aa-9bf0-4d06-a44c-17c71e75fa4d)\
+![image](https://github.com/user-attachments/assets/a6efa19b-a207-4b97-9a95-052f73b1d7e8)\
+![image](https://github.com/user-attachments/assets/23a61a71-57c1-4340-8aa0-1b857c6b02e4)\
 
 
 ### Results
-The dataset was divided into 70% training, 20% validation, and 10% test sets.\
+![image](https://github.com/user-attachments/assets/4d36eb5e-c60b-4756-9b99-04e2f9366846)
 
-![image](https://github.com/user-attachments/assets/b1dd4950-cbcc-4974-8d75-9cd551e50a11)
 
 
 ---
