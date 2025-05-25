@@ -9,7 +9,7 @@ This project aims to develop an AI agent that can suggest optimal tetromino plac
 * **Sample Size**: \~7000 examples
 * **Inputs**:
 
-  * A 20×12 Tetris board represented as an 8×20×12 tensor, where each cell is a one-hot vector of dimension 8
+  * A 20×10 Tetris board represented as an 8×20×12 tensor, where each cell is a one-hot vector of dimension 8. One column is padded on each side for cleaner patch division.
   * A one-hot vector representing the current falling tetromino
 * **Outputs**:
 
