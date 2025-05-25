@@ -3,16 +3,23 @@ This project aims to develop an AI agent that can suggest a good placement of te
 
 ---
 
-## Supervised Learning
+## Setup
+Sample size: ~7000
+Inputs: 20 x 12 tetris board where each cell is a one hot vector of dimension 8 (i.e, 8x20x12 tensor). Also, a one hot vector that represents current falling tetromino.
+Output: Logits for position (0-11). Logits for rotation (0-3)
+Loss function: sum of cross entropy loss on two outputs.
+Model: Vision Transformer (from "image is worth 16 x 16" paper) with some tweaks
 
-Sample size: ~6000 examples. \
-Each instance is a tuple (board, piece) where board is a 20x20 matrix and piece is an integer from {1, 2, ..., 7}.\
-Label is an integer from {1, ... , 48} which represents a unique combination of position and rotation of the falling piece.\
-I designed three neural network architectures: simple MLP, a CNN, and a multihead attention.\
-The best performing agent was a multihead attention, which scored 45% accuracy on test set.\
 
-Loss function: cross-entropy\
-Optimizer: Adam with learning rate = 0.001, decay = 0.0001\
+## Model Specification
+![Transformer drawio(1)](https://github.com/user-attachments/assets/3b7b00aa-9bf0-4d06-a44c-17c71e75fa4d)
+
+
+## Training configuration
+200 epochs
+0.1 dropout
+32 batch size
+
 
 ### Results
 The dataset was divided into 70% training, 20% validation, and 10% test sets.\
