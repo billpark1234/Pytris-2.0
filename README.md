@@ -11,15 +11,11 @@ Loss function: sum of cross entropy loss on two outputs. \
 Model: Vision Transformer (from "image is worth 16 x 16" paper) with some tweaks \
 The dataset was divided into 70% training, 20% validation, and 10% test sets.\
 
-## Model Specification
+### Results
+![image](https://github.com/user-attachments/assets/4d36eb5e-c60b-4756-9b99-04e2f9366846)
 ![Transformer drawio(1)](https://github.com/user-attachments/assets/3b7b00aa-9bf0-4d06-a44c-17c71e75fa4d)\
 ![image](https://github.com/user-attachments/assets/a6efa19b-a207-4b97-9a95-052f73b1d7e8)\
 ![image](https://github.com/user-attachments/assets/23a61a71-57c1-4340-8aa0-1b857c6b02e4)\
-
-
-### Results
-![image](https://github.com/user-attachments/assets/4d36eb5e-c60b-4756-9b99-04e2f9366846)
-
 
 
 ---
@@ -35,7 +31,5 @@ The following are screenshots of me playing. The ghost pieces are suggestions th
 ---
 
 ## Ideas for Improvement
-
-- Replace binary board encodings with numbers representing tetrominos. (1-7)
+- Try simpler networks
 - Collect more examples or augment them.
-- Make a deeper network.
